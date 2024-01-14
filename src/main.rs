@@ -13,9 +13,11 @@ mod pico;
 #[rp2040_hal::entry]
 fn main() -> ! {
     info!("Program start");
+    let pico = PicoW::new();
+    blink(pico);
+}
 
-    let mut pico = PicoW::new();
-
+fn blink(mut pico: PicoW) -> ! {
     let mut led_pin = pico.pins.gpio16.into_push_pull_output();
 
     loop {
