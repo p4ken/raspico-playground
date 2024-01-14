@@ -6,14 +6,14 @@
 
 use defmt::info;
 use defmt_rtt as _;
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::{blocking::delay::DelayMs, digital::v2::OutputPin};
 use panic_probe as _;
 
 use crate::pico::PicoW;
 
 mod pico;
 
-#[pico::entry]
+#[rp2040_hal::entry]
 fn main() -> ! {
     info!("Program start");
     let mut pico = PicoW::new();
@@ -23,14 +23,12 @@ fn main() -> ! {
     // Notably, on the Pico W, the LED is not connected to any of the RP2040 GPIOs but to the cyw43 module instead. If you have
     // a Pico W and want to toggle a LED with a simple GPIO output pin, you can connect an external
     // LED to one of the GPIO pins, and reference that pin here.
-    let mut led_pin = pico.pins().gpio16.into_push_pull_output();
+    let mut led_pin = pico.pins.gpio16.into_push_pull_output();
 
-    pico::hello();
-    // Err::<(), ()>(()).unwrap();
     loop {
         led_pin.set_high().unwrap();
-        pico.delay_ms(1000);
+        pico.timer.delay_ms(1000);
         led_pin.set_low().unwrap();
-        pico.delay_ms(1000);
+        pico.timer.delay_ms(500);
     }
 }

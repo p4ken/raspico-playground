@@ -1,54 +1,30 @@
-use cortex_m::delay::Delay;
-use defmt::println;
-
-pub use rp_pico::entry;
-use rp_pico::hal;
-use rp_pico::hal::Clock;
-
-pub fn hello() {
-    println!("hello usbserial");
-}
+/// External high-speed crystal on the Raspberry Pi Pico board is 12 MHz. Adjust
+/// if your board has a different frequency
+const XTAL_FREQ_HZ: u32 = 12_000_000u32;
 
 pub struct PicoW {
-    pins: rp_pico::Pins,
-    delay: Delay,
+    pub pins: rp2040_hal::gpio::Pins,
+    pub timer: rp2040_hal::Timer,
 }
 impl PicoW {
     pub fn new() -> Self {
-        let mut rp2040 = Rp2040::new();
-        let pins = rp_pico::Pins::new(
-            rp2040.pac.IO_BANK0,
-            rp2040.pac.PADS_BANK0,
-            rp2040.sio.gpio_bank0,
-            &mut rp2040.pac.RESETS,
-        );
-        let delay = rp2040.delay;
-        Self { pins, delay }
-    }
-
-    pub fn delay_ms(&mut self, millisec: u32) {
-        self.delay.delay_ms(millisec)
-    }
-
-    pub fn pins(&self) -> &rp_pico::Pins {
-        &self.pins
+        let Rp2040 { pins, timer } = Rp2040::new();
+        Self { pins, timer }
     }
 }
 
 struct Rp2040 {
-    delay: Delay,
-    pac: hal::pac::Peripherals,
-    sio: hal::sio::Sio,
+    pub pins: rp2040_hal::gpio::Pins,
+    pub timer: rp2040_hal::Timer,
 }
 impl Rp2040 {
     pub fn new() -> Self {
-        let mut pac = hal::pac::Peripherals::take().unwrap();
-        let core = hal::pac::CorePeripherals::take().unwrap();
-        let mut watchdog = hal::watchdog::Watchdog::new(pac.WATCHDOG);
-        let sio = hal::sio::Sio::new(pac.SIO);
+        let mut pac = rp2040_hal::pac::Peripherals::take().unwrap();
+        let mut watchdog = rp2040_hal::watchdog::Watchdog::new(pac.WATCHDOG);
 
-        let clocks = hal::clocks::init_clocks_and_plls(
-            rp_pico::XOSC_CRYSTAL_FREQ,
+        // Configure the clocks
+        let clocks = rp2040_hal::clocks::init_clocks_and_plls(
+            XTAL_FREQ_HZ,
             pac.XOSC,
             pac.CLOCKS,
             pac.PLL_SYS,
@@ -59,8 +35,19 @@ impl Rp2040 {
         .ok()
         .expect("failed to initialize clock");
 
-        let delay = Delay::new(core.SYST, clocks.system_clock.freq().to_Hz());
+        let timer = rp2040_hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
-        Self { delay, pac, sio }
+        // The single-cycle I/O block controls our GPIO pins
+        let sio = rp2040_hal::Sio::new(pac.SIO);
+
+        // Set the pins to their default state
+        let pins = rp2040_hal::gpio::Pins::new(
+            pac.IO_BANK0,
+            pac.PADS_BANK0,
+            sio.gpio_bank0,
+            &mut pac.RESETS,
+        );
+
+        Self { pins, timer }
     }
 }
