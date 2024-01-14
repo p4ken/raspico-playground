@@ -60,11 +60,11 @@ fn main() -> ! {
     // LED to one of the GPIO pins, and reference that pin here.
     let mut led_pin = pins.gpio16.into_push_pull_output();
 
+    println!("hello usbserial");
+    // Err::<(), ()>(()).unwrap();
     loop {
-        info!("on!");
         led_pin.set_high().unwrap();
         delay.delay_ms(1000);
-        info!("off!");
         led_pin.set_low().unwrap();
         delay.delay_ms(1000);
     }
