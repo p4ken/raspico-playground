@@ -10,7 +10,7 @@ use crate::pico::PicoW;
 
 mod pico;
 
-#[rp2040_hal::entry]
+#[pico::entry]
 fn main() -> ! {
     info!("Program start");
     let pico = PicoW::new();
