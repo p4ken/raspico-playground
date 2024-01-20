@@ -3,7 +3,7 @@ pub use rp_pico::entry;
 use rp_pico::hal;
 
 pub struct PicoW {
-    pub pins: rp_pico::Pins,
+    pub pins: hal::gpio::Pins,
     pub timer: hal::Timer,
 }
 impl PicoW {
@@ -30,7 +30,7 @@ impl PicoW {
         let sio = hal::Sio::new(pac.SIO);
 
         // Set the pins to their default state
-        let pins = rp_pico::Pins::new(
+        let pins = hal::gpio::Pins::new(
             pac.IO_BANK0,
             pac.PADS_BANK0,
             sio.gpio_bank0,

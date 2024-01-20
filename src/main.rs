@@ -3,7 +3,10 @@
 
 use defmt::info;
 use defmt_rtt as _;
-use embedded_hal::{blocking::delay::DelayMs, digital::v2::OutputPin};
+use embedded_hal::{
+    blocking::delay::DelayMs,
+    digital::v2::{InputPin, OutputPin},
+};
 use panic_probe as _;
 
 use crate::pico::PicoW;
@@ -18,12 +21,20 @@ fn main() -> ! {
 }
 
 fn blink(mut pico: PicoW) -> ! {
-    let mut led_pin = pico.pins.gpio16.into_push_pull_output();
+    let button = pico.pins.gpio15.into_pull_up_input();
+    let mut led_green = pico.pins.gpio16.into_push_pull_output();
+    let mut led_red = pico.pins.gpio17.into_push_pull_output();
 
     loop {
-        led_pin.set_high().unwrap();
-        pico.timer.delay_ms(1000);
-        led_pin.set_low().unwrap();
+        led_green.set_high().unwrap();
+        pico.timer.delay_ms(500);
+        if button.is_low().unwrap() {
+            led_red.set_high().unwrap();
+        }
+        pico.timer.delay_ms(500);
+        led_green.set_low().unwrap();
+        pico.timer.delay_ms(500);
+        led_red.set_low().unwrap();
         pico.timer.delay_ms(500);
     }
 }
