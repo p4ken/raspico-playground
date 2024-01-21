@@ -1,14 +1,20 @@
+use core::fmt::Debug;
+
 pub use rp_pico::entry;
 
 use rp_pico::hal;
 
+// type DefaultPin<ID> = hal::gpio::Pin<ID, hal::gpio::FunctionNull, hal::gpio::PullDown>;
+
 pub struct PicoW {
     pub pins: hal::gpio::Pins,
+    pub pwms: hal::pwm::Slices,
+    // gpio15: DefaultPin<hal::gpio::bank0::Gpio15>,
     pub timer: hal::Timer,
 }
 impl PicoW {
-    pub fn new() -> Self {
-        let mut pac = hal::pac::Peripherals::take().unwrap();
+    pub fn new() -> Result<Self, InitError> {
+        let mut pac = hal::pac::Peripherals::take().ok_or(InitError::Singlton)?;
         let mut watchdog = hal::watchdog::Watchdog::new(pac.WATCHDOG);
 
         // Configure the clocks
@@ -21,8 +27,7 @@ impl PicoW {
             &mut pac.RESETS,
             &mut watchdog,
         )
-        .ok()
-        .expect("failed to initialize clock");
+        .map_err(InitError::Clock)?;
 
         let timer = hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
@@ -37,6 +42,43 @@ impl PicoW {
             &mut pac.RESETS,
         );
 
-        Self { pins, timer }
+        // Init PWMs
+        let mut pwms = hal::pwm::Slices::new(pac.PWM, &mut pac.RESETS);
+        Self::init_pwm(&mut pwms.pwm0);
+        Self::init_pwm(&mut pwms.pwm1);
+        Self::init_pwm(&mut pwms.pwm2);
+        Self::init_pwm(&mut pwms.pwm3);
+        Self::init_pwm(&mut pwms.pwm4);
+        Self::init_pwm(&mut pwms.pwm5);
+        Self::init_pwm(&mut pwms.pwm6);
+        Self::init_pwm(&mut pwms.pwm7);
+
+        Ok(Self {
+            pins,
+            pwms,
+            // gpio15: pins.gpio15,
+            timer,
+        })
+    }
+
+    fn init_pwm<I: hal::pwm::SliceId, M: hal::pwm::ValidSliceMode<I>>(
+        pwm: &mut hal::pwm::Slice<I, M>,
+    ) {
+        pwm.set_ph_correct();
+        pwm.enable();
+    }
+}
+
+pub enum InitError {
+    Singlton,
+    Clock(hal::clocks::InitError),
+}
+impl Debug for InitError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        use InitError::*;
+        match self {
+            Singlton => f.write_str("singlton violation"),
+            Clock(_) => f.write_str("failed to init clock"),
+        }
     }
 }
