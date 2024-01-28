@@ -57,7 +57,7 @@ fn blink(mut pico: PicoW) -> Result<(), Infallible> {
     };
 
     loop {
-        const PHASE_USEC: i32 = 5_000_000;
+        const PHASE_USEC: i32 = 25_000_000;
         const MAX_GREEN_DUTY: u16 = u16::MAX;
         const MAX_RED_DUTY: u16 = 10000;
 
