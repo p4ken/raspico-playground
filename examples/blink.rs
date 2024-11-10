@@ -15,7 +15,7 @@ fn main() -> ! {
     info!("Program start");
     let pico = Pico::new().unwrap();
     blink(pico).unwrap();
-    loop {}
+    unreachable!()
 }
 
 fn blink(mut pico: Pico) -> Result<(), Infallible> {
