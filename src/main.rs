@@ -26,8 +26,8 @@ fn main() -> ! {
 
 fn blink(mut pico: PicoW) -> Result<(), Infallible> {
     let button = pico.pins.gpio15.into_pull_up_input();
-    let mut led_green = pico.pwms.pwm0.channel_a;
-    led_green.output_to(pico.pins.gpio16);
+    let mut led_green = pico.pwms.pwm4.channel_b;
+    led_green.output_to(pico.pins.gpio25);
 
     let mut led_red = pico.pwms.pwm1.channel_a;
     led_red.output_to(pico.pins.gpio18);
