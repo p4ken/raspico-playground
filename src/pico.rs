@@ -1,18 +1,16 @@
 use core::fmt::Debug;
 
-pub use rp_pico::entry;
-
 use rp_pico::hal;
 
 // type DefaultPin<ID> = hal::gpio::Pin<ID, hal::gpio::FunctionNull, hal::gpio::PullDown>;
 
-pub struct PicoW {
+pub struct Pico {
     pub pins: hal::gpio::Pins,
     pub pwms: hal::pwm::Slices,
     // gpio15: DefaultPin<hal::gpio::bank0::Gpio15>,
     pub timer: hal::Timer,
 }
-impl PicoW {
+impl Pico {
     pub fn new() -> Result<Self, InitError> {
         let mut pac = hal::pac::Peripherals::take().ok_or(InitError::Singlton)?;
         let mut watchdog = hal::watchdog::Watchdog::new(pac.WATCHDOG);
@@ -27,7 +25,7 @@ impl PicoW {
             &mut pac.RESETS,
             &mut watchdog,
         )
-        .map_err(InitError::Clock)?;
+        .map_err(|_| InitError::Clock)?;
 
         let timer = hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
@@ -71,14 +69,14 @@ impl PicoW {
 
 pub enum InitError {
     Singlton,
-    Clock(hal::clocks::InitError),
+    Clock,
 }
 impl Debug for InitError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         use InitError::*;
         match self {
             Singlton => f.write_str("singlton violation"),
-            Clock(_) => f.write_str("failed to init clock"),
+            Clock => f.write_str("failed to init clock"),
         }
     }
 }

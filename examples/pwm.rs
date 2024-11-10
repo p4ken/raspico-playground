@@ -5,32 +5,27 @@ use core::convert::Infallible;
 
 use defmt::info;
 use defmt_rtt as _;
-use embedded_hal::{
-    blocking::delay::{DelayMs, DelayUs},
-    digital::v2::{InputPin, OutputPin},
-    PwmPin,
-};
+use embedded_hal::{blocking::delay::DelayUs, PwmPin};
 use panic_probe as _;
 
-use crate::pico::PicoW;
+use p4pico::Pico;
 
-mod pico;
-
-#[pico::entry]
+#[p4pico::entry]
 fn main() -> ! {
     info!("Program start");
-    let pico = PicoW::new().unwrap();
+    let pico = Pico::new().unwrap();
     blink(pico).unwrap();
     loop {}
 }
 
-fn blink(mut pico: PicoW) -> Result<(), Infallible> {
-    let button = pico.pins.gpio15.into_pull_up_input();
-    let mut led_green = pico.pwms.pwm4.channel_b;
-    led_green.output_to(pico.pins.gpio25);
+fn blink(mut pico: Pico) -> Result<(), Infallible> {
+    let _button = pico.pins.gpio16.into_pull_up_input();
 
-    let mut led_red = pico.pwms.pwm1.channel_a;
-    led_red.output_to(pico.pins.gpio18);
+    let mut led_green = pico.pwms.pwm7.channel_b;
+    led_green.output_to(pico.pins.gpio15);
+
+    let mut led_red = pico.pwms.pwm7.channel_a;
+    led_red.output_to(pico.pins.gpio14);
 
     loop {
         const PHASE_USEC: i32 = 5_000_000;

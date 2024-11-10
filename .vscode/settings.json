@@ -1,6 +1,10 @@
 {
     "rust-analyzer.cargo.target": "thumbv6m-none-eabi",
-    "rust-analyzer.checkOnSave.allTargets": false,
+    "rust-analyzer.cargo.allTargets": false,
+    "rust-analyzer.cargo.extraArgs": [
+        "--lib",
+        "--examples"
+    ],
     "editor.formatOnSave": true,
     "[toml]": {
         "editor.formatOnSave": false
