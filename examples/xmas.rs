@@ -5,7 +5,7 @@ use core::convert::Infallible;
 
 use defmt::info;
 use defmt_rtt as _;
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::OutputPin;
 use panic_probe as _;
 
 use p4pico::Pico;

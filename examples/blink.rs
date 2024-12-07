@@ -5,7 +5,7 @@ use core::convert::Infallible;
 
 use defmt::info;
 use defmt_rtt as _;
-use embedded_hal::{blocking::delay::DelayUs, digital::v2::ToggleableOutputPin};
+use embedded_hal::{delay::DelayNs, digital::StatefulOutputPin};
 use panic_probe as _;
 
 use p4pico::Pico;
