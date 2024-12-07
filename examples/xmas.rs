@@ -15,10 +15,12 @@ fn main() -> ! {
     info!("Program start");
     let pico = Pico::new().unwrap();
     blink(pico).unwrap();
-    loop {}
+    unreachable!()
 }
 
 fn blink(pico: Pico) -> Result<(), Infallible> {
+    pico.pins.gpio25.into_push_pull_output().set_high()?;
+
     let gray = pico.pins.gpio14;
     let brown = pico.pins.gpio13;
     let orange = pico.pins.gpio12;
@@ -44,5 +46,6 @@ fn blink(pico: Pico) -> Result<(), Infallible> {
         clock.set_high()?;
         clock.set_low()?;
     }
+
     loop {}
 }
