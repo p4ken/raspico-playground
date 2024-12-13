@@ -19,7 +19,7 @@ fn main() -> ! {
 }
 
 fn blink(mut pico: Pico) -> Result<(), Infallible> {
-    let mut led = pico.pins.gpio25.into_push_pull_output();
+    let mut led = pico.pins.led.into_push_pull_output();
     loop {
         led.toggle()?;
         pico.timer.delay_us(1 * 500 * 1000);

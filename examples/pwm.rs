@@ -33,19 +33,19 @@ fn blink(mut pico: Pico) -> Result<(), Infallible> {
         const MAX_RED_DUTY: u16 = 10000;
 
         for i in 0..MAX_GREEN_DUTY {
-            led_green.set_duty_cycle(i);
+            led_green.set_duty_cycle(i)?;
             pico.timer.delay_us(PHASE_USEC / MAX_GREEN_DUTY as u32);
         }
         for i in 0..MAX_RED_DUTY {
-            led_red.set_duty_cycle(i);
+            led_red.set_duty_cycle(i)?;
             pico.timer.delay_us(PHASE_USEC / MAX_RED_DUTY as u32);
         }
         for i in (0..MAX_GREEN_DUTY).rev() {
-            led_green.set_duty_cycle(i);
+            led_green.set_duty_cycle(i)?;
             pico.timer.delay_us(PHASE_USEC / MAX_GREEN_DUTY as u32);
         }
         for i in (0..MAX_RED_DUTY).rev() {
-            led_red.set_duty_cycle(i);
+            led_red.set_duty_cycle(i)?;
             pico.timer.delay_us(PHASE_USEC / MAX_RED_DUTY as u32);
         }
     }

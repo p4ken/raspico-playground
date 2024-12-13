@@ -19,7 +19,7 @@ fn main() -> ! {
 }
 
 fn blink(pico: Pico) -> Result<(), Infallible> {
-    pico.pins.gpio25.into_push_pull_output().set_high()?;
+    pico.pins.led.into_push_pull_output().set_high()?;
 
     let gray = pico.pins.gpio14;
     let brown = pico.pins.gpio13;

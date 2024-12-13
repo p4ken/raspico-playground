@@ -2,12 +2,9 @@ use core::fmt::Debug;
 
 use rp_pico::hal;
 
-// type DefaultPin<ID> = hal::gpio::Pin<ID, hal::gpio::FunctionNull, hal::gpio::PullDown>;
-
 pub struct Pico {
-    pub pins: hal::gpio::Pins,
+    pub pins: rp_pico::Pins,
     pub pwms: hal::pwm::Slices,
-    // gpio15: DefaultPin<hal::gpio::bank0::Gpio15>,
     pub timer: hal::Timer,
 }
 impl Pico {
@@ -26,14 +23,13 @@ impl Pico {
             &mut watchdog,
         )
         .map_err(|_| InitError::Clock)?;
-
         let timer = hal::Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
         // The single-cycle I/O block controls our GPIO pins
         let sio = hal::Sio::new(pac.SIO);
 
         // Set the pins to their default state
-        let pins = hal::gpio::Pins::new(
+        let pins = rp_pico::Pins::new(
             pac.IO_BANK0,
             pac.PADS_BANK0,
             sio.gpio_bank0,
@@ -51,12 +47,7 @@ impl Pico {
         Self::init_pwm(&mut pwms.pwm6);
         Self::init_pwm(&mut pwms.pwm7);
 
-        Ok(Self {
-            pins,
-            pwms,
-            // gpio15: pins.gpio15,
-            timer,
-        })
+        Ok(Self { pins, pwms, timer })
     }
 
     fn init_pwm<I: hal::pwm::SliceId, M: hal::pwm::ValidSliceMode<I>>(
