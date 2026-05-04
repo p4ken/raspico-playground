@@ -1,6 +1,6 @@
 [package]
-edition = "2021"
-name = "p4pico"
+edition = "2024"
+name = "rp2040-project-template"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 
@@ -9,9 +9,9 @@ cortex-m = "0.7"
 cortex-m-rt = "0.7"
 embedded-hal = { version = "1.0.0" }
 
-defmt = "0.3"
-defmt-rtt = "0.4"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+defmt = "1"
+defmt-rtt = "1"
+panic-probe = { version = "1", features = ["print-defmt"] }
 
 # We're using a Pico by default on this template
 rp-pico = "0.9"
@@ -20,7 +20,7 @@ rp-pico = "0.9"
 # sparkfun-pro-micro-rp2040 = "0.8"
 
 # If you're not going to use a Board Support Package you'll need these:
-# rp2040-hal = { version="0.10", features=["rt", "critical-section-impl"] }
+# rp2040-hal = { version="0.11", features=["rt", "critical-section-impl"] }
 # rp2040-boot2 = "0.3"
 
 # cargo build/run

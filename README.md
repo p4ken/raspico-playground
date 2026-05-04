@@ -13,11 +13,13 @@ If you aren't using a debugger (or want to use other debugging configurations), 
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  
+
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
   <ol>
+    <li><a href="#quickstart">Quickstart</a></li>
     <li><a href="#markdown-header-requirements">Requirements</a></li>
     <li><a href="#installation-of-development-dependencies">Installation of development dependencies</a></li>
+    <li><a href="#project-creation">Project Creation</a></li>
     <li><a href="#running">Running</a></li>
     <li><a href="#alternative-runners">Alternative runners</a></li>
     <li><a href="#notes-on-using-rp2040_boot2">Notes on using rp2040_boot2</a></li>
@@ -30,19 +32,73 @@ If you aren't using a debugger (or want to use other debugging configurations), 
   </ol>
 </details>
 
+<!-- Quickstart -->
+<details open="open">
+  <summary><h2 style="display: inline-block" id="quickstart">Quickstart</h2></summary>
+
+This quickstart assumes that you've got a [Raspberry Pi
+Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/) (the first-generation
+version containing the RP2040 MCU) as well as a [Raspberry Pi Debug
+Probe](https://www.raspberrypi.com/products/debug-probe/) and will flash the Pico with
+[probe-rs](https://probe.rs/).
+
+Note: you don't have to use this setup. It's just the most common and well-supported setup.
+See the rest of the README for instructions on setting up different hardware or software.
+
+1. [Connect](https://www.raspberrypi.com/documentation/microcontrollers/debug-probe.html#getting-started)
+   your Raspberry Pi Pico and Debug Probe to your development host.
+
+1. Set up `cargo generate`:
+
+   ```
+   cargo install cargo-generate
+   ```
+
+1. Start your project by copying this template:
+
+   ```
+   cargo generate rp-rs/rp2040-project-template
+   ```
+
+1. Install the cross-compilation toolchain:
+
+   ```
+   rustup target install thumbv6m-none-eabi
+   ```
+
+1. Install stack overflow protection:
+
+   ```
+   cargo install flip-link
+   ```
+
+1. Install the flashing tools:
+
+   ```
+   cargo install --locked probe-rs-tools
+   ```
+
+1. Flash the debug build of the blinky app to your Pico:
+
+   ```
+   cargo run
+   ```
+
+</details>
+
+
 <!-- Requirements -->
 <details open="open">
   <summary><h2 style="display: inline-block" id="requirements">Requirements</h2></summary>
-  
+
 - The standard Rust tooling (cargo, rustup) which you can install from https://rustup.rs/
 
 - Toolchain support for the cortex-m0+ processors in the rp2040 (thumbv6m-none-eabi)
 
 - flip-link - this allows you to detect stack-overflows on the first core, which is the only supported target for now.
 
-- (by default) A [`probe-rs` installation](https://probe.rs/docs/getting-started/installation/)
-
-- A [`probe-rs` compatible](https://probe.rs/docs/getting-started/probe-setup/) probe
+- (by default) A [`probe-rs` installation](https://probe.rs/docs/getting-started/installation)
+- A [`probe-rs` compatible](https://probe.rs/docs/getting-started/probe-setup) probe
 
   You can use a second
   [Pico as a CMSIS-DAP debug probe](debug_probes.md#raspberry-pi-pico). Details
@@ -60,18 +116,46 @@ rustup target install thumbv6m-none-eabi
 cargo install flip-link
 # Installs the probe-rs tools, including probe-rs run, our recommended default runner
 cargo install --locked probe-rs-tools
-# If you want to use elf2uf2-rs instead, do...
-cargo install --locked elf2uf2-rs
 ```
+
+If you want to use picotool instead, install a [picotool binary][] for your system.
+
+[picotool binary]: https://github.com/raspberrypi/pico-sdk-tools/releases
+
 If you get the error ``binary `cargo-embed` already exists`` during installation of probe-rs, run `cargo uninstall cargo-embed` to uninstall your older version of cargo-embed before trying again.
 
 </details>
 
+<!-- Creating the project -->
+<details open="open">
+  <summary><h2 style="display: inline-block" id="project-creation">Creating your project</h2></summary>
+
+### Using `cargo-generate`
+
+```sh
+cargo generate --git https://github.com/rp-rs/rp2040-project-template
+```
+
+Follow the wizard 🪄 and enjoy your new project.
+
+### Downloading as a zip file or using GitHub's template support
+
+Obtain a copy of the code, either by downloading this repository as a zip file or using GitHub's
+template feature, then apply the following:
+- Remove `debug_probes.md`.
+- Remove the `cargo-generate` directory.
+- Remove/edit `README.md`.
+- If using vscode update `.vscode/launch.json`;
+  Else: remove this file.
+- Edit `Cargo.toml` & adjust according to your project (especially its name).
+- Edit `.cargo/config.toml` to select your favorite runner.
+
+</details>
 
 <!-- Running -->
 <details open="open">
   <summary><h2 style="display: inline-block" id="running">Running</h2></summary>
-  
+
 For a debug build
 ```sh
 cargo run
@@ -83,12 +167,12 @@ cargo run --release
 
 If you do not specify a DEFMT_LOG level, it will be set to `debug`.
 That means `println!("")`, `info!("")` and `debug!("")` statements will be printed.
-If you wish to override this, you can change it in `.cargo/config.toml` 
+If you wish to override this, you can change it in `.cargo/config.toml`
 ```toml
 [env]
 DEFMT_LOG = "off"
 ```
-You can also set this inline (on Linux/MacOS)  
+You can also set this inline (on Linux/MacOS)
 ```sh
 DEFMT_LOG=trace cargo run
 ```
@@ -99,7 +183,7 @@ or set the _environment variable_ so that it applies to every `cargo run` call t
 export DEFMT_LOG=trace
 ```
 
-Setting the DEFMT_LOG level for the current session  
+Setting the DEFMT_LOG level for the current session
 for bash
 ```sh
 export DEFMT_LOG=trace
@@ -126,38 +210,38 @@ cargo run
 <details open="open">
   <summary><h2 style="display: inline-block" id="alternative-runners">Alternative runners</h2></summary>
 
-If you don't have a debug probe or if you want to do interactive debugging you can set up an alternative runner for cargo.  
+If you don't have a debug probe or if you want to do interactive debugging you can set up an alternative runner for cargo.
 
 Some of the options for your `runner` are listed below:
 
 * **`cargo embed`**
   This is basically a more configurable version of `probe-rs run`, our default runner.
-  See [the `cargo-embed` tool docs page](https://probe.rs/docs/tools/cargo-embed/) for
+  See [the `cargo-embed` tool docs page](https://probe.rs/docs/tools/cargo-embed) for
   more information.
-  
+
   *Step 1* - Install `cargo-embed`. This is part of the [`probe-rs`](https://crates.io/crates/probe-rs) tools:
 
-  ```console
-  $ cargo install --locked probe-rs-tools
+  ```sh
+  cargo install --locked probe-rs-tools
   ```
 
-  *Step 2* - Update settings in [Embed.toml](./Embed.toml)  
+  *Step 2* - Update settings in [Embed.toml](./Embed.toml)
   - The defaults are to flash, reset, and start a defmt logging session
   You can find all the settings and their meanings [in the probe-rs repo](https://github.com/probe-rs/probe-rs/blob/c435072d0f101ade6fc3fde4a7899b8b5ef69195/probe-rs-tools/src/bin/probe-rs/cmd/cargo_embed/config/default.toml)
 
   *Step 3* - Use the command `cargo embed`, which will compile the code, flash the device
   and start running the configuration specified in Embed.toml
 
-  ```console
-  $ cargo embed --release
+  ```sh
+  cargo embed --release
   ```
 
 * **probe-rs-debugger**
   *Step 1* - Install Visual Studio Code from https://code.visualstudio.com/
 
   *Step 2* - Install `probe-rs`
-  ```console
-  $ cargo install --locked probe-rs-tools
+  ```sh
+  cargo install --locked probe-rs-tools
   ```
 
   *Step 3* - Open this project in VSCode
@@ -166,18 +250,14 @@ Some of the options for your `runner` are listed below:
 
   *Step 5* - Launch a debug session by choosing `Run`>`Start Debugging` (or press F5)
 
-* **Loading a UF2 over USB**  
-  *Step 1* - Install [`elf2uf2-rs`](https://github.com/JoNil/elf2uf2-rs):
-
-  ```console
-  $ cargo install elf2uf2-rs --locked
-  ```
+* **Loading over USB with Picotool**
+  *Step 1* - Install a [picotool binary][] for your system.
 
   *Step 2* - Modify `.cargo/config` to change the default runner
 
   ```toml
   [target.`cfg(all(target-arch = "arm", target_os = "none"))`]
-  runner = "elf2uf2-rs -d"
+  runner = "picotool load --update --verify --execute -t elf"
   ```
 
   The all-Arm wildcard `'cfg(all(target_arch = "arm", target_os = "none"))'` is used
@@ -185,31 +265,15 @@ Some of the options for your `runner` are listed below:
   `thumbv6m-none-eabi`.
 
   *Step 3* - Boot your RP2040 into "USB Bootloader mode", typically by rebooting
-  whilst holding some kind of "Boot Select" button. On Linux, you will also need
-  to 'mount' the device, like you would a USB Thumb Drive.
+  whilst holding some kind of "Boot Select" button.
 
   *Step 4* - Use `cargo run`, which will compile the code and start the
-  specified 'runner'. As the 'runner' is the `elf2uf2-rs` tool, it will build a UF2
-  file and copy it to your RP2040.
+  specified 'runner'. As the 'runner' is picotool, it will use the PICOBOOT
+  interface over USB to flash your RP2040.
 
-  ```console
-  $ cargo run --release
+  ```sh
+  cargo run --release
   ```
-
-* **Loading with picotool**  
-  As ELF files produced by compiling Rust code are completely compatible with ELF
-  files produced by compiling C or C++ code, you can also use the Raspberry Pi
-  tool [picotool](https://github.com/raspberrypi/picotool). The only thing to be
-  aware of is that picotool expects your ELF files to have a `.elf` extension, and
-  by default Rust does not give the ELF files any extension. You can fix this by
-  simply renaming the file.
-
-  This means you can't easily use it as a cargo runner - yet.
-
-  Also of note is that the special
-  [pico-sdk](https://github.com/raspberrypi/pico-sdk) macros which hide
-  information in the ELF file in a way that `picotool info` can read it out, are
-  not supported in Rust. An alternative is TBC.
 
 </details>
 <!-- Notes on using rp2040_hal and rp2040_boot2 -->
@@ -241,6 +305,50 @@ Some of the options for your `runner` are listed below:
   ```
 </details>
 
+<!-- ROADMAP -->
+
+## Roadmap
+
+NOTE These packages are under active development. As such, it is likely to
+remain volatile until a 1.0.0 release.
+
+See the [open issues](https://github.com/rp-rs/rp2040-project-template/issues) for a list of
+proposed features (and known issues).
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+The steps are:
+
+1. Fork the Project by clicking the 'Fork' button at the top of the page.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Make some changes to the code or documentation.
+4. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+5. Push to the Feature Branch (`git push origin feature/AmazingFeature`)
+6. Create a [New Pull Request](https://github.com/rp-rs/rp2040-project-template/pulls)
+7. An admin will review the Pull Request and discuss any changes that may be required.
+8. Once everyone is happy, the Pull Request can be merged by an admin, and your work is part of our project!
+
+## Code of Conduct
+
+Contribution to this crate is organized under the terms of the [Rust Code of
+Conduct][CoC], and the maintainer of this crate, the [rp-rs team], promises
+to intervene to uphold that code of conduct.
+
+[CoC]: CODE_OF_CONDUCT.md
+[rp-rs team]: https://github.com/orgs/rp-rs/teams/rp-rs
+
 ## License
 
-The contents of this repository are licensed under the MIT License.
+The contents of this repository are dual-licensed under the _[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE-2.0)_ License. That means you can chose either the MIT licence or the
+Apache-2.0 licence when you re-use this code. See [`LICENSE-MIT`](LICENSE-MIT) or [`LICENSE-APACHE-2.0`](LICENSE-APACHE-2.0) for more
+information on each specific licence.
+
+Any submissions to this project (e.g. as Pull Requests) must be made available
+under these terms.
+
+## Contact
+
+Raise an issue: [https://github.com/rp-rs/rp2040-project-template/issues](https://github.com/rp-rs/rp2040-project-template/issues)
+Chat to us on Matrix: [#rp-rs:matrix.org](https://matrix.to/#/#rp-rs:matrix.org)
