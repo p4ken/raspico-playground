@@ -107,15 +107,18 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
 {
     for h in 0..24 {
         for i in 0..24 {
-            match LED_BUFFER_KARAS[h * 24 + i] {
-                1 => {
-                    set_pin(red, false);
-                    set_pin(green, true);
-                }
-                _ => {
-                    set_pin(red, false);
-                    set_pin(green, false);
-                }
+            // JISKAN24 is bit-packed: 24*24 = 576 bits = 72 bytes.
+            // Compute linear bit index and extract the bit from the byte array.
+            let idx = h * 24 + i;
+            let byte = p4pico::JISKAN24[idx / 8];
+            let bit = (byte >> (7 - (idx % 8))) & 1;
+
+            if bit == 1 {
+                set_pin(red, false);
+                set_pin(green, true);
+            } else {
+                set_pin(red, false);
+                set_pin(green, false);
             }
 
             wait_ms(1);
