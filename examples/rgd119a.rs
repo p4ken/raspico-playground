@@ -80,6 +80,7 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
     A3: OutputPin<Error = Infallible>,
     A4: OutputPin<Error = Infallible>,
 {
+    let glyph = &JISKAN24['籠'];
     for h in 0..24 {
         for i in 0..24 {
             // JISKAN24 is bit-packed: 24*24 = 576 bits = 72 bytes.
@@ -87,7 +88,7 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
             // Rotate 90 degrees clockwise: map display (h,i) to original
             // coordinate (orig_row, orig_col) = (23 - i, h).
             let idx = (23 - i) * 24 + h;
-            let byte = JISKAN24['籠'][idx / 8]; // TODO: for の外で読み込む
+            let byte = glyph[idx / 8];
             let bit = (byte >> (7 - (idx % 8))) & 1;
 
             if bit == 1 {

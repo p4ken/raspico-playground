@@ -3,6 +3,7 @@ use core::ops::Index;
 pub struct Font<'a> {
     unicode_bytes: &'a [u8],
     glyph_bytes: &'a [u8],
+    frame_bytes_len: usize,
     frame_size: usize,
 }
 
@@ -15,12 +16,14 @@ impl<'a> Font<'a> {
         let (unicode_bytes, glyph_bytes) =
             bin.split_at_checked(count * 2).expect("unicodes required");
 
-        let frame_size = (glyph_bytes.len() * 8 / count).isqrt();
+        let frame_bytes_len = glyph_bytes.len() / count;
+        let frame_size = (frame_bytes_len * 8).isqrt();
         assert!(frame_size * frame_size * count / 8 == glyph_bytes.len());
 
         Self {
             unicode_bytes,
             glyph_bytes,
+            frame_bytes_len,
             frame_size,
         }
     }
@@ -36,10 +39,8 @@ impl Index<char> for Font<'_> {
             .chunks_exact(2)
             .position(|w| u16::from_le_bytes(*w.as_array().unwrap()) == unicode as u16)
             .unwrap();
-        &self
-            .glyph_bytes
-            .chunks_exact(self.frame_size * self.frame_size / 8)
-            .nth(idx) // TODO: アドレスアクセス
-            .unwrap_or(&[])
+
+        let glyph = &self.glyph_bytes[self.frame_bytes_len * idx..][..self.frame_bytes_len];
+        glyph
     }
 }
