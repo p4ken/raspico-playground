@@ -10,7 +10,9 @@ use defmt_rtt as _;
 use embedded_hal::digital::OutputPin;
 use panic_probe as _;
 
-use p4pico::Pico;
+use p4pico::{Font, Pico};
+
+const JISKAN24: Font = Font::new(include_bytes!("../rom/jiskan24.bin"));
 
 #[inline(always)]
 fn set_pin<P>(pin: &mut P, high: bool)
@@ -85,7 +87,7 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
             // Rotate 90 degrees clockwise: map display (h,i) to original
             // coordinate (orig_row, orig_col) = (23 - i, h).
             let idx = (23 - i) * 24 + h;
-            let byte = p4pico::JISKAN24[idx / 8];
+            let byte = JISKAN24['籠'][idx / 8]; // TODO: for の外で読み込む
             let bit = (byte >> (7 - (idx % 8))) & 1;
 
             if bit == 1 {
