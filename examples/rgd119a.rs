@@ -68,6 +68,7 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
     address2: &mut A2,
     address3: &mut A3,
     address4: &mut A4,
+    ab: char,
 ) where
     R: OutputPin<Error = Infallible>,
     G: OutputPin<Error = Infallible>,
@@ -80,7 +81,7 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
     A3: OutputPin<Error = Infallible>,
     A4: OutputPin<Error = Infallible>,
 {
-    let glyph = &JISKAN24['籠'];
+    let glyph = &JISKAN24['驚'];
     for h in 0..24 {
         for i in 0..24 {
             // JISKAN24 is bit-packed: 24*24 = 576 bits = 72 bytes.
@@ -99,25 +100,16 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
                 set_pin(green, false);
             }
 
-            wait_ms(1);
             set_pin(clock, true);
-            wait_ms(1);
             set_pin(clock, false);
-            wait_ms(1);
         }
 
-        wait_ms(1);
         set_address(address0, address1, address2, address3, address4, h);
 
-        wait_ms(1);
         set_pin(latch, true);
-        wait_ms(1);
         set_pin(we, true);
-        wait_ms(1);
         set_pin(we, false);
-        wait_ms(1);
         set_pin(latch, false);
-        wait_ms(1);
     }
 }
 
@@ -141,30 +133,25 @@ fn drive(pico: Pico) -> Result<(), Infallible> {
 
     set_pin(&mut se, true);
     set_pin(&mut abb, true);
-    wait_ms(1);
     set_pin(&mut abb, false);
     set_pin(&mut clk, false);
     set_pin(&mut ale, false);
     set_pin(&mut we, false);
-
-    wait_ms(1);
 
     loop {
         set_pin(&mut abb, true);
         set_pin(&mut led, true);
         led_display(
             &mut dr, &mut dg, &mut ale, &mut clk, &mut we, &mut a0, &mut a1, &mut a2, &mut a3,
-            &mut a4,
+            &mut a4, 'a',
         );
 
         set_pin(&mut abb, false);
         set_pin(&mut led, false);
         led_display(
             &mut dr, &mut dg, &mut ale, &mut clk, &mut we, &mut a0, &mut a1, &mut a2, &mut a3,
-            &mut a4,
+            &mut a4, 'b',
         );
-
-        wait_ms(200);
     }
 }
 
