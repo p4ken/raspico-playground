@@ -3,6 +3,7 @@
 mod font;
 pub mod ld61;
 mod pico;
+pub mod rgd119;
 
 pub use font::Font;
 pub use pico::Pico;
