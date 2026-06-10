@@ -1,7 +1,7 @@
 use core::convert::Infallible;
 
 use rp_pico::hal::gpio::{
-    DynPinId, FunctionNull, FunctionSio, Pin, PullDown, SioOutput, ValidFunction,
+    DynPinId, Function, FunctionSio, Pin, PullDown, PullType, SioOutput, ValidFunction,
 };
 
 type Rgd119Pin = Pin<DynPinId, FunctionSio<SioOutput>, PullDown>;
@@ -23,33 +23,33 @@ pub struct Rgd119 {
 
 impl Rgd119 {
     pub fn new(
-        se: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        abb: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        a4: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        a3: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        a2: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        a1: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        a0: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        dg: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        clk: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        we: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        dr: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
-        ale: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        se: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        abb: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        a4: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        a3: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        a2: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        a1: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        a0: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        dg: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        clk: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        we: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        dr: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
+        ale: Pin<impl ValidFunction<FunctionSio<SioOutput>>, impl Function, impl PullType>,
     ) -> Self {
         Self {
-            se: se.into_push_pull_output().into_dyn_pin(),
-            abb: abb.into_push_pull_output().into_dyn_pin(),
-            a4: a4.into_push_pull_output().into_dyn_pin(),
-            a3: a3.into_push_pull_output().into_dyn_pin(),
-            a2: a2.into_push_pull_output().into_dyn_pin(),
-            a1: a1.into_push_pull_output().into_dyn_pin(),
-            a0: a0.into_push_pull_output().into_dyn_pin(),
+            se: se.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            abb: abb.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            a4: a4.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            a3: a3.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            a2: a2.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            a1: a1.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            a0: a0.into_push_pull_output().into_dyn_pin().into_pull_type(),
             /* vss: gnd */
-            dg: dg.into_push_pull_output().into_dyn_pin(),
-            clk: clk.into_push_pull_output().into_dyn_pin(),
-            we: we.into_push_pull_output().into_dyn_pin(),
-            dr: dr.into_push_pull_output().into_dyn_pin(),
-            ale: ale.into_push_pull_output().into_dyn_pin(),
+            dg: dg.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            clk: clk.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            we: we.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            dr: dr.into_push_pull_output().into_dyn_pin().into_pull_type(),
+            ale: ale.into_push_pull_output().into_dyn_pin().into_pull_type(),
         }
     }
 
