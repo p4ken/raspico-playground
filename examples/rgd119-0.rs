@@ -113,7 +113,11 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
     }
 }
 
-fn drive(pico: Pico) -> Result<(), Infallible> {
+#[entry]
+fn main() -> ! {
+    info!("Program start");
+    let pico = Pico::new().unwrap();
+
     let pins = pico.pins;
 
     let mut rgd119 = Rgd119::new(
@@ -132,52 +136,44 @@ fn drive(pico: Pico) -> Result<(), Infallible> {
     );
     let mut led = pins.led.into_push_pull_output();
 
-    set_pin(&mut rgd119.se, true);
-    set_pin(&mut rgd119.abb, true);
-    set_pin(&mut rgd119.abb, false);
-    set_pin(&mut rgd119.clk, false);
-    set_pin(&mut rgd119.ale, false);
-    set_pin(&mut rgd119.we, false);
+    set_pin(&mut rgd119.se.0, true);
+    set_pin(&mut rgd119.abb.0, true);
+    set_pin(&mut rgd119.abb.0, false);
+    set_pin(&mut rgd119.clk.0, false);
+    set_pin(&mut rgd119.ale.0, false);
+    set_pin(&mut rgd119.we.0, false);
 
     loop {
-        set_pin(&mut rgd119.abb, true);
+        set_pin(&mut rgd119.abb.0, true);
         set_pin(&mut led, true);
         led_display(
-            &mut rgd119.dr,
-            &mut rgd119.dg,
-            &mut rgd119.ale,
-            &mut rgd119.clk,
-            &mut rgd119.we,
-            &mut rgd119.a0,
-            &mut rgd119.a1,
-            &mut rgd119.a2,
-            &mut rgd119.a3,
-            &mut rgd119.a4,
+            &mut rgd119.dr.0,
+            &mut rgd119.dg.0,
+            &mut rgd119.ale.0,
+            &mut rgd119.clk.0,
+            &mut rgd119.we.0,
+            &mut rgd119.a0.0,
+            &mut rgd119.a1.0,
+            &mut rgd119.a2.0,
+            &mut rgd119.a3.0,
+            &mut rgd119.a4.0,
             'a',
         );
 
-        set_pin(&mut rgd119.abb, false);
+        set_pin(&mut rgd119.abb.0, false);
         set_pin(&mut led, false);
         led_display(
-            &mut rgd119.dr,
-            &mut rgd119.dg,
-            &mut rgd119.ale,
-            &mut rgd119.clk,
-            &mut rgd119.we,
-            &mut rgd119.a0,
-            &mut rgd119.a1,
-            &mut rgd119.a2,
-            &mut rgd119.a3,
-            &mut rgd119.a4,
+            &mut rgd119.dr.0,
+            &mut rgd119.dg.0,
+            &mut rgd119.ale.0,
+            &mut rgd119.clk.0,
+            &mut rgd119.we.0,
+            &mut rgd119.a0.0,
+            &mut rgd119.a1.0,
+            &mut rgd119.a2.0,
+            &mut rgd119.a3.0,
+            &mut rgd119.a4.0,
             'b',
         );
     }
-}
-
-#[entry]
-fn main() -> ! {
-    info!("Program start");
-    let pico = Pico::new().unwrap();
-    drive(pico).unwrap();
-    loop {}
 }
