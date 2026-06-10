@@ -10,7 +10,7 @@ use defmt_rtt as _;
 use embedded_hal::digital::OutputPin;
 use panic_probe as _;
 
-use p4pico::{Font, Pico};
+use p4pico::{rgd119::Rgd119, Font, Pico};
 
 const JISKAN24: Font = Font::new(include_bytes!("../rom/jiskan24.bin"));
 
@@ -116,41 +116,60 @@ fn led_display<R, G, L, C, W, A0, A1, A2, A3, A4>(
 fn drive(pico: Pico) -> Result<(), Infallible> {
     let pins = pico.pins;
 
-    let mut se = pins.gpio1.into_push_pull_output();
-    let mut abb = pins.gpio2.into_push_pull_output();
-    let mut a4 = pins.gpio3.into_push_pull_output();
-    let mut a3 = pins.gpio4.into_push_pull_output();
-    let mut a2 = pins.gpio5.into_push_pull_output();
-    let mut a1 = pins.gpio6.into_push_pull_output();
-    let mut a0 = pins.gpio7.into_push_pull_output();
-    let _vss = (); // gnd
-    let mut dg = pins.gpio9.into_push_pull_output();
-    let mut clk = pins.gpio10.into_push_pull_output();
-    let mut we = pins.gpio11.into_push_pull_output();
-    let mut dr = pins.gpio12.into_push_pull_output();
-    let mut ale = pins.gpio13.into_push_pull_output();
+    let mut rgd119 = Rgd119::new(
+        pins.gpio1,
+        pins.gpio2,
+        pins.gpio3,
+        pins.gpio4,
+        pins.gpio5,
+        pins.gpio6,
+        pins.gpio7,
+        pins.gpio9,
+        pins.gpio10,
+        pins.gpio11,
+        pins.gpio12,
+        pins.gpio13,
+    );
     let mut led = pins.led.into_push_pull_output();
 
-    set_pin(&mut se, true);
-    set_pin(&mut abb, true);
-    set_pin(&mut abb, false);
-    set_pin(&mut clk, false);
-    set_pin(&mut ale, false);
-    set_pin(&mut we, false);
+    set_pin(&mut rgd119.se, true);
+    set_pin(&mut rgd119.abb, true);
+    set_pin(&mut rgd119.abb, false);
+    set_pin(&mut rgd119.clk, false);
+    set_pin(&mut rgd119.ale, false);
+    set_pin(&mut rgd119.we, false);
 
     loop {
-        set_pin(&mut abb, true);
+        set_pin(&mut rgd119.abb, true);
         set_pin(&mut led, true);
         led_display(
-            &mut dr, &mut dg, &mut ale, &mut clk, &mut we, &mut a0, &mut a1, &mut a2, &mut a3,
-            &mut a4, 'a',
+            &mut rgd119.dr,
+            &mut rgd119.dg,
+            &mut rgd119.ale,
+            &mut rgd119.clk,
+            &mut rgd119.we,
+            &mut rgd119.a0,
+            &mut rgd119.a1,
+            &mut rgd119.a2,
+            &mut rgd119.a3,
+            &mut rgd119.a4,
+            'a',
         );
 
-        set_pin(&mut abb, false);
+        set_pin(&mut rgd119.abb, false);
         set_pin(&mut led, false);
         led_display(
-            &mut dr, &mut dg, &mut ale, &mut clk, &mut we, &mut a0, &mut a1, &mut a2, &mut a3,
-            &mut a4, 'b',
+            &mut rgd119.dr,
+            &mut rgd119.dg,
+            &mut rgd119.ale,
+            &mut rgd119.clk,
+            &mut rgd119.we,
+            &mut rgd119.a0,
+            &mut rgd119.a1,
+            &mut rgd119.a2,
+            &mut rgd119.a3,
+            &mut rgd119.a4,
+            'b',
         );
     }
 }

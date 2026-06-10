@@ -1,53 +1,59 @@
 use core::convert::Infallible;
 
-use rp_pico::hal::gpio::{DynPinId, FunctionSio, Pin, PullDown, SioOutput};
+use rp_pico::hal::gpio::{
+    DynPinId, FunctionNull, FunctionSio, Pin, PullDown, SioOutput, ValidFunction,
+};
 
-type DigitalOut = Pin<DynPinId, FunctionSio<SioOutput>, PullDown>;
+type Rgd119Pin = Pin<DynPinId, FunctionSio<SioOutput>, PullDown>;
 
-pub struct Driver {
-    interface: Interface,
+pub struct Rgd119 {
+    pub se: Rgd119Pin,
+    pub abb: Rgd119Pin,
+    pub a4: Rgd119Pin,
+    pub a3: Rgd119Pin,
+    pub a2: Rgd119Pin,
+    pub a1: Rgd119Pin,
+    pub a0: Rgd119Pin,
+    pub dg: Rgd119Pin,
+    pub clk: Rgd119Pin,
+    pub we: Rgd119Pin,
+    pub dr: Rgd119Pin,
+    pub ale: Rgd119Pin,
 }
 
-pub struct Interface {
-    se: DigitalOut,
-    abb: DigitalOut,
-    a4: DigitalOut,
-    a3: DigitalOut,
-    a2: DigitalOut,
-    a1: DigitalOut,
-    a0: DigitalOut,
-    dg: DigitalOut,
-    clk: DigitalOut,
-    we: DigitalOut,
-    dr: DigitalOut,
-    ale: DigitalOut,
-    led: DigitalOut,
-}
-
-impl Interface {
-    fn new() -> Self {
-        let pins = crate::Pico::new().unwrap().pins;
-
-        let _: &Pin<rp_pico::hal::gpio::bank0::Gpio1, rp_pico::hal::gpio::FunctionNull, PullDown> =
-            &pins.gpio1;
-        let mut se = pins.gpio1.into_push_pull_output();
-        let mut abb = pins.gpio2.into_push_pull_output();
-        let mut a4 = pins.gpio3.into_push_pull_output();
-        let mut a3 = pins.gpio4.into_push_pull_output();
-        let mut a2 = pins.gpio5.into_push_pull_output();
-        let mut a1 = pins.gpio6.into_push_pull_output();
-        let mut a0 = pins.gpio7.into_push_pull_output();
-        let _vss = (); // gnd
-        let mut dg = pins.gpio9.into_push_pull_output();
-        let mut clk = pins.gpio10.into_push_pull_output();
-        let mut we = pins.gpio11.into_push_pull_output();
-        let mut dr = pins.gpio12.into_push_pull_output();
-        let mut ale = pins.gpio13.into_push_pull_output();
-        let mut led = pins.led.into_push_pull_output();
-        todo!()
+impl Rgd119 {
+    pub fn new(
+        se: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        abb: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        a4: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        a3: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        a2: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        a1: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        a0: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        dg: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        clk: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        we: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        dr: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+        ale: Pin<impl ValidFunction<FunctionSio<SioOutput>>, FunctionNull, PullDown>,
+    ) -> Self {
+        Self {
+            se: se.into_push_pull_output().into_dyn_pin(),
+            abb: abb.into_push_pull_output().into_dyn_pin(),
+            a4: a4.into_push_pull_output().into_dyn_pin(),
+            a3: a3.into_push_pull_output().into_dyn_pin(),
+            a2: a2.into_push_pull_output().into_dyn_pin(),
+            a1: a1.into_push_pull_output().into_dyn_pin(),
+            a0: a0.into_push_pull_output().into_dyn_pin(),
+            /* vss: gnd */
+            dg: dg.into_push_pull_output().into_dyn_pin(),
+            clk: clk.into_push_pull_output().into_dyn_pin(),
+            we: we.into_push_pull_output().into_dyn_pin(),
+            dr: dr.into_push_pull_output().into_dyn_pin(),
+            ale: ale.into_push_pull_output().into_dyn_pin(),
+        }
     }
 
-    fn tick(&self) -> Result<(), Infallible> {
+    pub fn tick(&mut self) -> Result<(), Infallible> {
         Ok(())
     }
 }
