@@ -136,13 +136,6 @@ fn main() -> ! {
     );
     let mut led = pins.led.into_push_pull_output();
 
-    set_pin(&mut rgd119.se.0, true);
-    set_pin(&mut rgd119.abb.0, true);
-    set_pin(&mut rgd119.abb.0, false);
-    set_pin(&mut rgd119.clk.0, false);
-    set_pin(&mut rgd119.ale.0, false);
-    set_pin(&mut rgd119.we.0, false);
-
     loop {
         set_pin(&mut rgd119.abb.0, true);
         set_pin(&mut led, true);

@@ -1,10 +1,25 @@
 use core::convert::Infallible;
 
+use embedded_hal::digital::OutputPin;
 use rp_pico::hal::gpio::{
     DynPinId, Function, FunctionSio, Pin, PullDown, PullType, SioOutput, ValidFunction,
 };
 
 pub struct DigitalOut(pub Pin<DynPinId, FunctionSio<SioOutput>, PullDown>);
+
+impl DigitalOut {
+    pub fn on(&mut self) {
+        self.set(true)
+    }
+
+    pub fn off(&mut self) {
+        self.set(false)
+    }
+
+    pub fn set(&mut self, on: bool) {
+        self.0.set_state(on.into()).unwrap()
+    }
+}
 
 impl<I, F, P> From<Pin<I, F, P>> for DigitalOut
 where
@@ -52,7 +67,7 @@ impl Rgd119 {
         dr: impl Into<DigitalOut>,
         ale: impl Into<DigitalOut>,
     ) -> Self {
-        Self {
+        let mut rgd119 = Self {
             se: se.into(),
             abb: abb.into(),
             a4: a4.into(),
@@ -65,7 +80,16 @@ impl Rgd119 {
             we: we.into(),
             dr: dr.into(),
             ale: ale.into(),
-        }
+        };
+
+        rgd119.se.on();
+        rgd119.abb.on();
+        rgd119.abb.off();
+        rgd119.clk.off();
+        rgd119.ale.off();
+        rgd119.we.off();
+
+        rgd119
     }
 
     pub fn tick(&mut self) -> Result<(), Infallible> {
