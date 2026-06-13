@@ -1,6 +1,4 @@
-use core::convert::Infallible;
-
-use embedded_hal::digital::OutputPin;
+use embedded_hal::digital::{OutputPin, StatefulOutputPin};
 use rp_pico::hal::gpio::{
     DynPinId, Function, FunctionSio, Pin, PullDown, PullType, SioOutput, ValidFunction,
 };
@@ -8,15 +6,15 @@ use rp_pico::hal::gpio::{
 pub struct DigitalOut(pub Pin<DynPinId, FunctionSio<SioOutput>, PullDown>);
 
 impl DigitalOut {
-    pub fn on(&mut self) {
+    fn on(&mut self) {
         self.set(true)
     }
 
-    pub fn off(&mut self) {
+    fn off(&mut self) {
         self.set(false)
     }
 
-    pub fn set(&mut self, on: bool) {
+    fn set(&mut self, on: bool) {
         self.0.set_state(on.into()).unwrap()
     }
 }
@@ -92,7 +90,51 @@ impl Rgd119 {
         rgd119
     }
 
-    pub fn tick(&mut self) -> Result<(), Infallible> {
-        Ok(())
+    pub fn draw(&mut self, glyph: &[u8], color: Color) {
+        self.abb.0.toggle();
+
+        for h in 0..24 {
+            for i in 0..24 {
+                // Rotate 90 degrees clockwise: map display (h,i) to original
+                // coordinate (orig_row, orig_col) = (23 - i, h).
+                let idx = (23 - i) * 24 + h;
+                let byte = glyph[idx / 8];
+                let bit = (byte >> (7 - (idx % 8))) & 1;
+
+                self.dr.set(bit == 1 && color.emits_red());
+                self.dg.set(bit == 1 && color.emits_green());
+
+                self.clk.on();
+                self.clk.off();
+            }
+
+            self.a0.set(h & 0b00001 != 0);
+            self.a1.set(h & 0b00010 != 0);
+            self.a2.set(h & 0b00100 != 0);
+            self.a3.set(h & 0b01000 != 0);
+            self.a4.set(h & 0b10000 != 0);
+
+            self.ale.on();
+            self.we.on();
+            self.we.off();
+            self.ale.off();
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Color {
+    Green,
+    Red,
+    Orange,
+}
+
+impl Color {
+    fn emits_red(self) -> bool {
+        matches!(self, Color::Red | Color::Orange)
+    }
+
+    fn emits_green(self) -> bool {
+        matches!(self, Color::Green | Color::Orange)
     }
 }

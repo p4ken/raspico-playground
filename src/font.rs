@@ -4,7 +4,7 @@ pub struct Font<'a> {
     unicode_bytes: &'a [u8],
     glyph_bytes: &'a [u8],
     frame_bytes_len: usize,
-    frame_size: usize,
+    _frame_size: usize,
 }
 
 impl<'a> Font<'a> {
@@ -24,7 +24,7 @@ impl<'a> Font<'a> {
             unicode_bytes,
             glyph_bytes,
             frame_bytes_len,
-            frame_size,
+            _frame_size: frame_size,
         }
     }
 }
