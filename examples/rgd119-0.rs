@@ -12,11 +12,18 @@ use p4pico::{
     Font, Pico,
 };
 
-const JISKAN24: Font = Font::new(include_bytes!("../rom/jiskan24.bin"));
-
 #[entry]
 fn main() -> ! {
     info!("Program start");
+
+    // probe-rs download rom/jiskan24.bin --base-address 0x10040000 --chip rp2040 --binary-format=bin
+    let jiskan24 = Font::new(unsafe {
+        core::slice::from_raw_parts(
+            0x10040000 as *const u8,
+            include_bytes!("../rom/jiskan24.bin").len(),
+        )
+    });
+
     let mut pico = Pico::new().unwrap();
 
     let mut rgd119 = Rgd119::new(
@@ -38,6 +45,6 @@ fn main() -> ! {
     loop {
         led.toggle();
         pico.timer.delay_ms(500);
-        rgd119.draw(&JISKAN24['鷹'], Color::Green);
+        rgd119.draw(&jiskan24['凰'], Color::Green);
     }
 }
