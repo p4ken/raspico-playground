@@ -47,7 +47,7 @@ pub struct CN1 {
     pub clk: DigitalOut,
     pub we: [DigitalOut; 2],
     pub dr: DigitalOut,
-    pub ale: [DigitalOut; 2],
+    pub ale: DigitalOut,
 }
 
 impl CN1 {
@@ -67,7 +67,7 @@ pub struct Host {
     clk: DigitalOut,
     we: [DigitalOut; 2],
     dr: DigitalOut,
-    ale: [DigitalOut; 2],
+    ale: DigitalOut,
 }
 
 impl Host {
@@ -76,8 +76,7 @@ impl Host {
         cn1.abb.on();
         cn1.abb.off();
         cn1.clk.off();
-        cn1.ale[0].off();
-        cn1.ale[1].off();
+        cn1.ale.off();
         cn1.we[0].off();
         cn1.we[1].off();
 
@@ -120,10 +119,10 @@ impl Host {
                 self.a3.set(h & 0b01000 != 0);
                 self.a4.set(h & 0b10000 != 0);
 
-                self.ale[g].on();
+                self.ale.on();
                 self.we[g].on();
                 self.we[g].off();
-                self.ale[g].off();
+                self.ale.off();
             }
         }
     }

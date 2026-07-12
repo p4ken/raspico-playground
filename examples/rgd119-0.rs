@@ -31,7 +31,7 @@ fn main() -> ! {
         clk: pins.gpio10.into(),
         we: [pins.gpio11.into(), pins.gpio14.into()],
         dr: pins.gpio12.into(),
-        ale: [pins.gpio13.into(), pins.gpio15.into()],
+        ale: pins.gpio13.into(),
     }
     .into_host();
     let mut led = pins.led.into_push_pull_output();
@@ -47,6 +47,6 @@ fn main() -> ! {
     loop {
         led.toggle();
         pico.timer.delay_ms(500);
-        rgd119.draw([&jiskan24['鳳'], &jiskan24['凰']], Color::Green);
+        rgd119.draw([&jiskan24['賃'], &jiskan24['走']], Color::Green);
     }
 }
