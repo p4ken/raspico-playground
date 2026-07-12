@@ -45,9 +45,9 @@ pub struct CN1 {
     pub a0: DigitalOut,
     pub dg: DigitalOut,
     pub clk: DigitalOut,
-    pub we: DigitalOut,
+    pub we: [DigitalOut; 2],
     pub dr: DigitalOut,
-    pub ale: DigitalOut,
+    pub ale: [DigitalOut; 2],
 }
 
 impl CN1 {
@@ -65,9 +65,9 @@ pub struct Host {
     a0: DigitalOut,
     dg: DigitalOut,
     clk: DigitalOut,
-    we: DigitalOut,
+    we: [DigitalOut; 2],
     dr: DigitalOut,
-    ale: DigitalOut,
+    ale: [DigitalOut; 2],
 }
 
 impl Host {
@@ -76,8 +76,10 @@ impl Host {
         cn1.abb.on();
         cn1.abb.off();
         cn1.clk.off();
-        cn1.ale.off();
-        cn1.we.off();
+        cn1.ale[0].off();
+        cn1.ale[1].off();
+        cn1.we[0].off();
+        cn1.we[1].off();
 
         Self {
             abb: cn1.abb,
@@ -94,34 +96,35 @@ impl Host {
         }
     }
 
-    pub fn draw(&mut self, glyph: &[u8], color: Color) {
+    pub fn draw(&mut self, glyphs: [&[u8]; 2], color: Color) {
         self.abb.0.toggle();
 
-        for h in 0..24 {
-            for i in 0..24 {
-                // Rotate 90 degrees clockwise: map display (h,i) to original
-                // coordinate (orig_row, orig_col) = (23 - i, h).
-                let idx = (23 - i) * 24 + h;
-                let byte = glyph[idx / 8];
-                let bit = (byte >> (7 - (idx % 8))) & 1;
+        for g in 0..2 {
+            let glyph = glyphs[g];
+            for h in 0..24 {
+                for i in 0..24 {
+                    let idx = (23 - i) * 24 + h;
+                    let byte = glyph[idx / 8];
+                    let bit = (byte >> (7 - (idx % 8))) & 1;
 
-                self.dr.set(bit == 1 && color.emits_red());
-                self.dg.set(bit == 1 && color.emits_green());
+                    self.dr.set(bit == 1 && color.emits_red());
+                    self.dg.set(bit == 1 && color.emits_green());
 
-                self.clk.on();
-                self.clk.off();
+                    self.clk.on();
+                    self.clk.off();
+                }
+
+                self.a0.set(h & 0b00001 != 0);
+                self.a1.set(h & 0b00010 != 0);
+                self.a2.set(h & 0b00100 != 0);
+                self.a3.set(h & 0b01000 != 0);
+                self.a4.set(h & 0b10000 != 0);
+
+                self.ale[g].on();
+                self.we[g].on();
+                self.we[g].off();
+                self.ale[g].off();
             }
-
-            self.a0.set(h & 0b00001 != 0);
-            self.a1.set(h & 0b00010 != 0);
-            self.a2.set(h & 0b00100 != 0);
-            self.a3.set(h & 0b01000 != 0);
-            self.a4.set(h & 0b10000 != 0);
-
-            self.ale.on();
-            self.we.on();
-            self.we.off();
-            self.ale.off();
         }
     }
 }
