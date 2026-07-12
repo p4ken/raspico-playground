@@ -35,7 +35,7 @@ where
     }
 }
 
-pub struct Rgd119 {
+pub struct CN1 {
     pub se: DigitalOut,
     pub abb: DigitalOut,
     pub a4: DigitalOut,
@@ -50,44 +50,48 @@ pub struct Rgd119 {
     pub ale: DigitalOut,
 }
 
-impl Rgd119 {
-    pub fn new(
-        se: impl Into<DigitalOut>,
-        abb: impl Into<DigitalOut>,
-        a4: impl Into<DigitalOut>,
-        a3: impl Into<DigitalOut>,
-        a2: impl Into<DigitalOut>,
-        a1: impl Into<DigitalOut>,
-        a0: impl Into<DigitalOut>,
-        dg: impl Into<DigitalOut>,
-        clk: impl Into<DigitalOut>,
-        we: impl Into<DigitalOut>,
-        dr: impl Into<DigitalOut>,
-        ale: impl Into<DigitalOut>,
-    ) -> Self {
-        let mut rgd119 = Self {
-            se: se.into(),
-            abb: abb.into(),
-            a4: a4.into(),
-            a3: a3.into(),
-            a2: a2.into(),
-            a1: a1.into(),
-            a0: a0.into(),
-            dg: dg.into(),
-            clk: clk.into(),
-            we: we.into(),
-            dr: dr.into(),
-            ale: ale.into(),
-        };
+impl CN1 {
+    pub fn into_host(self) -> Host {
+        Host::new(self)
+    }
+}
 
-        rgd119.se.on();
-        rgd119.abb.on();
-        rgd119.abb.off();
-        rgd119.clk.off();
-        rgd119.ale.off();
-        rgd119.we.off();
+pub struct Host {
+    abb: DigitalOut,
+    a4: DigitalOut,
+    a3: DigitalOut,
+    a2: DigitalOut,
+    a1: DigitalOut,
+    a0: DigitalOut,
+    dg: DigitalOut,
+    clk: DigitalOut,
+    we: DigitalOut,
+    dr: DigitalOut,
+    ale: DigitalOut,
+}
 
-        rgd119
+impl Host {
+    fn new(mut cn1: CN1) -> Self {
+        cn1.se.on();
+        cn1.abb.on();
+        cn1.abb.off();
+        cn1.clk.off();
+        cn1.ale.off();
+        cn1.we.off();
+
+        Self {
+            abb: cn1.abb,
+            a4: cn1.a4,
+            a3: cn1.a3,
+            a2: cn1.a2,
+            a1: cn1.a1,
+            a0: cn1.a0,
+            dg: cn1.dg,
+            clk: cn1.clk,
+            we: cn1.we,
+            dr: cn1.dr,
+            ale: cn1.ale,
+        }
     }
 
     pub fn draw(&mut self, glyph: &[u8], color: Color) {
