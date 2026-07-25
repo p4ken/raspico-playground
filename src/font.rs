@@ -1,3 +1,5 @@
+//! Bitmap font.
+
 use core::ops::Index;
 
 pub struct Font<'a> {

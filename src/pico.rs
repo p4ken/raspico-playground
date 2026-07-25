@@ -1,3 +1,5 @@
+//! A high level abstraction for Raspberry Pi Pico 1.
+
 use core::fmt::Debug;
 
 use rp_pico::hal;

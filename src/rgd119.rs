@@ -1,3 +1,5 @@
+//! 24x24 LED matrix unit `HD-0155-RGD119A`.
+
 use embedded_hal::digital::{OutputPin, StatefulOutputPin};
 use rp_pico::hal::gpio::{
     DynPinId, Function, FunctionSio, Pin, PullDown, PullType, SioOutput, ValidFunction,

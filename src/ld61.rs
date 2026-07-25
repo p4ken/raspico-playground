@@ -1,4 +1,12 @@
-//! LD61, the LED display controller of Sotetsu 7050 series.
+//! Sotetsu 7050 series LED display `LD61`.
+//!
+//! The display is integrated with route map like:
+//! ```txt
+//! Express: <LED> ---- <LED> --- ...
+//! Local:   <LED> ---- <LED> --- ...
+//!          Ebina    Kashiwadai
+//! ```
+
 use embedded_hal::digital::OutputPin;
 
 /// Connector to LED driver board.
